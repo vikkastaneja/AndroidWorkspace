@@ -1,8 +1,12 @@
 package com.google.vikasproject;
 
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
 
 import android.app.Activity;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,29 +17,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements LocationListener {
 
 	private String mainActivity = "Main Activity";
-	private MediaPlayer mediaPlayer = null;
-	@SuppressWarnings("unused")
-	private FileInputStream fileStream = null;
-	
-	@SuppressWarnings("unused")
-	private void playMusicFromWeb(final String url) {
-		if (url == null || url.isEmpty()) {
-			throw new NullPointerException("URL Passed is null");
-		}
-		
-		try {
-			Uri file = Uri.parse(url);
-			mediaPlayer = MediaPlayer.create(this, file);
-			mediaPlayer.start();
-		} catch(Exception ex) {
-			Log.e(mainActivity, ex.getMessage());
-		}
-	}
 	
 	public void onLocationChanged(Location location)
 	{
@@ -57,35 +47,107 @@ public class MainActivity extends Activity implements LocationListener {
 		try {
 			LocationManager locMgr = (LocationManager)getSystemService(LOCATION_SERVICE);
 			if (!locMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-				Toast.makeText(this, "Unable to take location", 5000).show();
-				finish();
+				Toast.makeText(this, "Unable to take location", Toast.LENGTH_SHORT).show();
+				return;
 			}
 			
 			locMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
 			Location location = locMgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			if (location != null) {
+				updateText(location);
+			}
 			Log.i(mainActivity, "=====> Last known location: " + location.toString());
 		} catch (Exception ex) {
 			Log.e(mainActivity, "Location failed: " + ex.getMessage());
 		}
 	}
+	
+	private void updateText(Location locationInformation) {
+		if (locationInformation == null) {
+			Toast.makeText(this, "Location information is null", Toast.LENGTH_LONG).show();
+			return;
+		}
+		
+		TextView textView = (TextView)findViewById(R.id.textView1);
+		StringBuilder toDisplay = new StringBuilder();
+		if (Geocoder.isPresent()) {
+			try {
+				Geocoder geoCoder = new Geocoder(getApplicationContext());
+				List<Address> list = geoCoder.getFromLocation(locationInformation.getLatitude(), locationInformation.getLongitude(), 1);
+			    toDisplay.append("Current address: ");
+			    toDisplay.append(list.get(0).getAddressLine(0) + "\n");
+			    toDisplay.append(list.get(0).getAddressLine(1) + "\n");
+			    toDisplay.append(list.get(0).getAddressLine(2));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			toDisplay.append("Longitude: " + locationInformation.getLongitude() 
+					+ " Lattitude: " + locationInformation.getLatitude());
+		}
+		
+		textView.setText(toDisplay);
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.v(mainActivity, "OnCreate");
 		super.onCreate(savedInstanceState);
-		this.getLocation();
 		setContentView(R.layout.activity_main);
 	}
 	
 	@Override
 	protected void onStart() {
 		Log.v(mainActivity, "OnStart");
-		//this.playMusicFromWeb("http://freedownloads.last.fm/download/458250264/The%2BDevil%2527s%2BGotta%2527%2BEarn.mp3");
+		Button button = (Button)findViewById(R.id.button1);
+		button.setOnClickListener(new OnClickListener() {
+			
+			private MediaPlayer mediaPlayer = null;
+			
+			private void playMusicFromWeb(final String url) {
+				if (url == null || url.isEmpty()) {
+					throw new NullPointerException("URL Passed is null");
+				}
+				
+				Button button = (Button)findViewById(R.id.button1);
+				button.setClickable(false);
+				try {
+					if (mediaPlayer == null) {
+						Uri file = Uri.parse(url);
+						mediaPlayer = MediaPlayer.create(getApplicationContext(), file);
+						
+						mediaPlayer.start();
+						button.setText("Stop playing song");
+					} else {
+						if (mediaPlayer.isPlaying())
+							mediaPlayer.stop();
+						
+						mediaPlayer.release();
+						mediaPlayer = null;
+						button.setText("Start playing song");
+					}
+				} catch(Exception ex) {
+					Log.e(mainActivity, ex.getMessage());
+				} finally {
+					button.setClickable(true);
+				}
+			}
+			
+
+			@Override
+			public void onClick(View v) {
+				this.playMusicFromWeb("http://sound18.mp3slash.net/indian/3idiots/3idiots01%28www.songs.pk%29.mp3");
+				
+			}
+		});
 		super.onStart();
 	}
 	
 	@Override
 	protected void onResume() {
 		Log.v(mainActivity, "OnResume");
+		this.getLocation();
 		super.onResume();
 	}
 	
@@ -98,13 +160,13 @@ public class MainActivity extends Activity implements LocationListener {
 	@Override
 	protected void onStop() {
 		Log.v(mainActivity, "OnStop");
-		if (this.mediaPlayer != null) {
-			if (this.mediaPlayer.isPlaying()) {
-				this.mediaPlayer.stop();
-			}
-			
-			this.mediaPlayer.release();
-		}
+//		if (this.mediaPlayer != null) {
+//			if (this.mediaPlayer.isPlaying()) {
+//				this.mediaPlayer.stop();
+//			}
+//			
+//			this.mediaPlayer.release();
+//		}
 		
 		super.onStop();
 	}

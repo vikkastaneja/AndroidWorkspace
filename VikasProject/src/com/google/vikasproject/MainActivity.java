@@ -1,6 +1,5 @@
 package com.google.vikasproject;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -11,17 +10,16 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.AlarmClock;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements LocationListener {
@@ -42,6 +40,27 @@ public class MainActivity extends Activity implements LocationListener {
 	        System.out.println("La location es nula");
 	    }
 
+	}
+	
+	private void setTimer() {
+		TimePicker tp = (TimePicker)findViewById(R.id.timePicker1);
+		Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM)
+        .putExtra(AlarmClock.EXTRA_HOUR, tp.getCurrentHour())
+        .putExtra(AlarmClock.EXTRA_MINUTES, tp.getCurrentMinute());
+		if (intent.resolveActivity(getPackageManager()) != null)
+			startActivity(intent);
+	}
+	
+	private void pluginTimer() {
+		Button button = (Button)findViewById(R.id.button2);
+		button.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				setTimer();
+				
+			}
+		});
 	}
 	
 	private void getLocation() {
@@ -165,6 +184,7 @@ public class MainActivity extends Activity implements LocationListener {
 	protected void onResume() {
 		Log.v(mainActivity, "OnResume");
 		this.getLocation();
+		this.pluginTimer();
 		super.onResume();
 	}
 	

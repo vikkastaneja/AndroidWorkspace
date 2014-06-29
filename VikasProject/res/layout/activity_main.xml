@@ -42,4 +42,20 @@
         android:ems="10"
         android:inputType="phone" />
 
+    <TimePicker
+        android:id="@+id/timePicker1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editText1"
+        android:layout_below="@+id/dialButton"
+        android:layout_marginTop="24dp" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/dialButton"
+        android:layout_alignParentBottom="true"
+        android:text="Set alarm" />
+
 </RelativeLayout>

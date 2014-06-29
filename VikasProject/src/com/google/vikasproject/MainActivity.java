@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -97,9 +98,25 @@ public class MainActivity extends Activity implements LocationListener {
 		setContentView(R.layout.activity_main);
 	}
 	
+	private void pluginDialButton() {
+		Button button = (Button)findViewById(R.id.dialButton);
+		button.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				TextView numberTextView = (TextView)findViewById(R.id.editText1);
+				String number = numberTextView.getText().toString();
+				Uri numUri = Uri.parse("tel:" + number);
+				Intent dial = new Intent(Intent.ACTION_DIAL, numUri);
+				startActivity(dial);
+			}
+		});
+	}
+	
 	@Override
 	protected void onStart() {
 		Log.v(mainActivity, "OnStart");
+		pluginDialButton();
 		Button button = (Button)findViewById(R.id.button1);
 		button.setOnClickListener(new OnClickListener() {
 			

@@ -25,6 +25,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity implements LocationListener {
 
 	private String mainActivity = "Main Activity";
+	private int request_code = 1;
 	
 	public void onLocationChanged(Location location)
 	{
@@ -33,6 +34,7 @@ public class MainActivity extends Activity implements LocationListener {
 	        System.out.println("La localizacion es: (lon: "
 	                + location.getLongitude() + ", lat: "
 	                + location.getLatitude() + ")");
+	        updateText(location);
 	        
 	    }
 	    else
@@ -237,5 +239,23 @@ public class MainActivity extends Activity implements LocationListener {
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void onClickGoto(View view) {
+		// To start the activity without worrying about result
+		//startActivity(new Intent("com.google.vikasproject.SecondaryActivity1"));
+		//startActivity(new Intent(this, SecondaryActivity1.class));
+		
+		// To capture the return value, use the following:
+		startActivityForResult(new Intent(this, SecondaryActivity1.class), request_code );
+	}
+	
+	public void onActivityResult(int requestCode, int resultcode, Intent data) {
+		if (data != null) {
+			Toast.makeText(getBaseContext(), data.getData().toString(), Toast.LENGTH_LONG).show();
+		} else {
+			// If back is pressed, no data is returned.
+			Toast.makeText(getBaseContext(), "No data is returned", Toast.LENGTH_LONG).show();
+		}
 	}
 }
